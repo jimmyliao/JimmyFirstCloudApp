@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+</head>
+<body>
+    <h1>Chat</h1>
+    <div id="chat-messages"></div>
+    <form id="chat-form">
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button type="submit">Send</button>
+    </form>
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatMessages = document.getElementById('chat-messages');
+        const messageInput = document.getElementById('message-input');
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = messageInput.value;
+            if (!message) {
+                chatMessages.innerHTML += `<p>Not product found</p>`;
+                return;
+            }
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    chatMessages.innerHTML += `<p>${errorData.detail}</p>`;
+                    return;
+                }
+                const data = await response.json();
+                chatMessages.innerHTML += `<p>${data.message}</p>`;
+                messageInput.value = '';
+            } catch (error) {
+                chatMessages.innerHTML += `<p>An error occurred: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
